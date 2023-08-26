@@ -1,6 +1,6 @@
-from int_environment.data_generation.combos_and_orders import generate_combinations_and_orders
-from int_environment.data_generation.generate_problems import generate_multiple_problems
-from int_environment.proof_system.all_axioms import axiom_sets
+from int.data_generation.combos_and_orders import generate_combinations_and_orders
+from int.data_generation.generate_problems import generate_multiple_problems
+from int.proof_system.all_axioms import axiom_sets
 
 
 def test_data_generation():

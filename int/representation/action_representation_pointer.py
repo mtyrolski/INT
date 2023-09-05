@@ -1,20 +1,13 @@
 import difflib
 import string
 
+from int.algos.lib.obs import theorem_names, index2thm, thm2index
 from int.proof_system.all_axioms import all_axioms_to_prove
 from int.representation import base
 from int.visualization import seq_parse
 from int.visualization.seq_parse import entity_to_seq_string
 
-theorem_names = [theorem.name for theorem in list(all_axioms_to_prove.values())]
 
-thm2index = {
-    node: ind
-    for ind, node in enumerate(theorem_names)
-}
-index2thm = {
-    ind: node for ind, node in enumerate(theorem_names)
-}
 
 CONDITION_LEXEME = '&'
 OBJECTIVE_LEXEME = '#'

@@ -385,6 +385,10 @@ class ActionRepresentationPointer:
         for entity_str in action_raw[1:]:
             if entity_str in mask_to_entity:
                 action.append(mask_to_entity[entity_str])
+            elif entity_str.replace('=', '\\geq ') in mask_to_entity:
+                action.append(mask_to_entity[entity_str.replace('=', '\\geq ')])
+            elif entity_str.replace('=', '\\leq ') in mask_to_entity:
+                action.append(mask_to_entity[entity_str.replace('=', '\\leq ')])
             elif entity_str[1:].replace('=(', '=') in mask_to_entity:
                 action.append(mask_to_entity[entity_str[1:].replace('=(', '=')])
             elif entity_str[1:] in mask_to_entity:

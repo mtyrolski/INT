@@ -284,7 +284,7 @@ class ActionRepresentationPointer:
         return formula
 
 
-    def proof_states_to_policy_input_formula(self, current_state, destination_state, vanilla=False):
+    def proof_states_to_policy_input_formula(self, current_state, destination_state, vanilla=False, with_diff=True):
         current_str, condition = self.proof_state_to_input_formula(current_state)
         destination_objective = OBJECTIVE_LEXEME
         if isinstance(destination_state, str):
@@ -292,7 +292,10 @@ class ActionRepresentationPointer:
         else:
             destination_objective += seq_parse.logic_statement_to_seq_string(destination_state['observation']['objectives'][0])
         if not self.vanilla and not vanilla:
-            formula = self.find_diff(current_str, destination_objective)
+            if with_diff:
+                formula = self.find_diff(current_str, destination_objective)
+            else:
+                formula = current_str + BOS_LEXEME + destination_objective[1:]
         else:
             formula = current_str
         formula += condition

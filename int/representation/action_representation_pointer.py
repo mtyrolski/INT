@@ -238,7 +238,7 @@ class ActionRepresentationPointer:
     )
 
     @staticmethod
-    def proof_state_to_input_formula(state):
+    def proof_state_to_input_formula(state, to_one_string: bool = False) -> str | tuple[str, str]:
         conditions = [
             seq_parse.logic_statement_to_seq_string(condition)
             for condition in state['observation']['ground_truth']
@@ -252,6 +252,8 @@ class ActionRepresentationPointer:
         condition = CONDITION_LEXEME
         if len(conditions) > 0:
             condition += CONDITION_LEXEME.join(conditions)
+        if to_one_string:
+            return formula + condition + EOS_LEXEME
         return formula, condition
 
     @staticmethod

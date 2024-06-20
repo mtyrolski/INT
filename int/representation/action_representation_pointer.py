@@ -1,20 +1,13 @@
 import difflib
 import string
 
+from int.algos.lib.obs import theorem_names, index2thm, thm2index
 from int.proof_system.all_axioms import all_axioms_to_prove
 from int.representation import base
 from int.visualization import seq_parse
 from int.visualization.seq_parse import entity_to_seq_string
 
-theorem_names = [theorem.name for theorem in list(all_axioms_to_prove.values())]
 
-thm2index = {
-    node: ind
-    for ind, node in enumerate(theorem_names)
-}
-index2thm = {
-    ind: node for ind, node in enumerate(theorem_names)
-}
 
 CONDITION_LEXEME = '&'
 OBJECTIVE_LEXEME = '#'
@@ -245,7 +238,7 @@ class ActionRepresentationPointer:
     )
 
     @staticmethod
-    def proof_state_to_input_formula(state):
+    def proof_state_to_input_formula(state, to_one_string: bool = False) -> str | tuple[str, str]:
         conditions = [
             seq_parse.logic_statement_to_seq_string(condition)
             for condition in state['observation']['ground_truth']
@@ -259,6 +252,8 @@ class ActionRepresentationPointer:
         condition = CONDITION_LEXEME
         if len(conditions) > 0:
             condition += CONDITION_LEXEME.join(conditions)
+        if to_one_string:
+            return formula + condition + EOS_LEXEME
         return formula, condition
 
     @staticmethod
@@ -291,7 +286,7 @@ class ActionRepresentationPointer:
         return formula
 
 
-    def proof_states_to_policy_input_formula(self, current_state, destination_state, vanilla=False):
+    def proof_states_to_policy_input_formula(self, current_state, destination_state, vanilla=False, with_diff=True):
         current_str, condition = self.proof_state_to_input_formula(current_state)
         destination_objective = OBJECTIVE_LEXEME
         if isinstance(destination_state, str):
@@ -299,7 +294,10 @@ class ActionRepresentationPointer:
         else:
             destination_objective += seq_parse.logic_statement_to_seq_string(destination_state['observation']['objectives'][0])
         if not self.vanilla and not vanilla:
-            formula = self.find_diff(current_str, destination_objective)
+            if with_diff:
+                formula = self.find_diff(current_str, destination_objective)
+            else:
+                formula = current_str + BOS_LEXEME + destination_objective[1:]
         else:
             formula = current_str
         formula += condition
@@ -392,6 +390,14 @@ class ActionRepresentationPointer:
         for entity_str in action_raw[1:]:
             if entity_str in mask_to_entity:
                 action.append(mask_to_entity[entity_str])
+            elif entity_str.replace('=', '\\geq ') in mask_to_entity:
+                action.append(mask_to_entity[entity_str.replace('=', '\\geq ')])
+            elif entity_str.replace('=', '\\leq ') in mask_to_entity:
+                action.append(mask_to_entity[entity_str.replace('=', '\\leq ')])
+            elif entity_str[1:].replace('=(', '=') in mask_to_entity:
+                action.append(mask_to_entity[entity_str[1:].replace('=(', '=')])
+            elif entity_str[1:] in mask_to_entity:
+                action.append(mask_to_entity[entity_str[1:]])
             else:
                 raise ValueError(f'Unrecognized entity: {entity_str}')
 
